@@ -6,22 +6,30 @@ import com.coviam.crm.marketagent.document.MarketAgent;
 import com.coviam.crm.marketagent.document.MarketAgentLead;
 import com.coviam.crm.marketagent.dto.AdDTO;
 import com.coviam.crm.marketagent.dto.CommentsDTO;
+import com.coviam.crm.marketagent.dto.MailDTO;
 import com.coviam.crm.marketagent.dto.UserDTO;
 import com.coviam.crm.marketagent.repository.LeadRepositroy;
 import com.coviam.crm.marketagent.repository.MarketAgentLeadRepository;
 import com.coviam.crm.marketagent.repository.MarketAgentRepository;
 import com.coviam.crm.marketagent.service.MarketAgentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
+import com.coviam.crm.marketagent.mailtemplete.MailTemplateAdmin;
+import com.coviam.crm.marketagent.mailtemplete.MailTempleteAgent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,25 +44,29 @@ public class MarketAgentServiceImpl implements MarketAgentService {
     @Autowired
     MarketAgentRepository marketAgentRepository;
 
-
+    @Autowired
+    KafkaTemplate<String,String> kafkaTemplate;
 
     @Autowired
     MarketAgentLeadRepository marketAgentLeadRepository;
+
+    private static final String[] category = {"","Literature","Technology","Lifestyle","Movies","Food","Sports"};
 
     @Override
     public void addMmarketAgent(MarketAgent marketAgent) {
         marketAgentRepository.save(marketAgent);
     }
 
-    @KafkaListener(topics = "onClick" , groupId = "group-id")
+    @KafkaListener(topics = "clicks" , groupId = "group-id")
     void addNewLead(AdDTO adDTO){
         Lead newLead = new Lead();
         BeanUtils.copyProperties(adDTO,newLead);
-        UserDTO userDTO = loginClient.getUserById(adDTO.getLeadId());
+        UserDTO userDTO = loginClient.getUserById(adDTO.getUserId());
         newLead.setStatus("open");
         newLead.setLeadName(userDTO.getName());
         newLead.setLeadEmail(userDTO.getEmail());
         newLead.setMailCount("0");
+        newLead.setCategory(category[Integer.parseInt(adDTO.getCategoryId())]);
         DateTimeFormatter df = DateTimeFormatter.ofPattern("hh:mm:ss");
 
         LocalDateTime date=LocalDateTime.now();
@@ -142,6 +154,7 @@ public class MarketAgentServiceImpl implements MarketAgentService {
 
     @Override
     public Long getPendingLeadsById(String id) {
+
         return marketAgentRepository.findById(id).get().getLeadPending();
     }
 
@@ -151,7 +164,64 @@ public class MarketAgentServiceImpl implements MarketAgentService {
     }
 
     @Scheduled(fixedDelay = 600000)
-    private void sendMails(){
+    private void sendMails() {
+        List<Lead> leadList = leadRepositroy.findAll();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
+        leadList.stream().forEach(lead -> {
+            if ((lead.getStatus()).equals("open")) {
+                LocalDateTime now = LocalDateTime.now();
+
+                if (dtf.format(now.minusMinutes(15)).compareTo(lead.getUpdateTime()) > 0) {
+
+                    MailDTO mailDTO = MailTemplateAdmin.mail(lead);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        kafkaTemplate.send("Mail", objectMapper.writeValueAsString(mailDTO));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (Long.parseLong(lead.getMailCount()) < 4)
+                        lead.setMailCount(lead.getMailCount() + 1);
+
+                    else
+                        lead.setStatus("discarded");
+
+
+                }
+
+            } else if ((lead.getStatus()).equals("in progress")) {
+                LocalDateTime now = LocalDateTime.now();
+
+                if (dtf.format(now.minusMinutes(15)).compareTo(lead.getUpdateTime()) > 0) {
+
+                    AtomicReference<String> marketAgentid = new AtomicReference<>("");
+                    marketAgentLeadRepository.findAll().stream().forEach(marketAgentLead -> {
+                        if ((marketAgentLead.getLeadId()).equals(lead.getLeadId())) {
+                            marketAgentid.set(marketAgentLead.getMarketAgentId());
+                            return;
+                        }
+                    });
+
+                    MailDTO mailDTO = MailTempleteAgent.mail(lead, marketAgentRepository.findById(marketAgentid.get()).get());
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        kafkaTemplate.send("Mail", objectMapper.writeValueAsString(mailDTO));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (Long.parseLong(lead.getMailCount()) < 4)
+                        lead.setMailCount(lead.getMailCount() + 1);
+
+                    else
+                        lead.setStatus("open");
+
+                }
+            }
+        });
     }
 }

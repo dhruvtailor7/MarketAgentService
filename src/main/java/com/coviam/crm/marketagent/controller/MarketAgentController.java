@@ -73,13 +73,11 @@ public class MarketAgentController {
         return new ResponseEntity<>(marketAgentService.getLeadListByMarketAgentId(marketingAgentid), HttpStatus.OK);
     }
 
-
-    @GetMapping("/uploadComments")
-    Lead uploadComments(CommentsDTO commentsDTO){
-        return marketAgentService.upload(commentsDTO);
+    @PostMapping("/uploadComments")
+    ResponseEntity<Lead> uploadComments(@RequestBody CommentsDTO commentsDTO){
+        return new ResponseEntity<>(marketAgentService.upload(commentsDTO), HttpStatus.OK);
     }
 
-    //TODO add in Support agent
 
     @GetMapping("/getPendingLeadsById/{id}")
     ResponseEntity<Long> getPendingLeadsById(@PathVariable("id") String id){

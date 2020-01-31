@@ -17,17 +17,17 @@ import java.util.List;
 @Document(collection = "Lead")
 public class Lead {
     @Id
-    String leadId;
-    String leadName;
-    String leadEmail;
-    String category;
-    String source;
-    String status;
-    String createdTime;
-    String updateTime;
-    String mailCount;
-    List<String> comments;
-    List<String> images;
-    List<String> videos;
-    List<String> documents;
+    private String leadId;
+    private String leadName;
+    private String leadEmail;
+    private String category;
+    private String source;
+    private String status;
+    private String createdTime;
+    private String updateTime;
+    private String mailCount;
+    private List<String> comments;
+    private List<String> images;
+    private List<String> videos;
+    private List<String> documents;
 }

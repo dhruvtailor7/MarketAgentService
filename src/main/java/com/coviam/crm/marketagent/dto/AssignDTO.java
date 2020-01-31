@@ -8,6 +8,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AssignDTO {
-    String marketingAgentId;
-    String leadId;
+    private String marketingAgentId;
+    private String leadId;
 }

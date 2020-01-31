@@ -11,6 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @Document(collection = "MarketAgentLead")
 public class MarketAgentLead {
-    String marketAgentId;
-    String leadId;
+    private String marketAgentId;
+    private String leadId;
 }

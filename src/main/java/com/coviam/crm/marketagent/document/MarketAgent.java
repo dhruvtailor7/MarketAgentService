@@ -13,10 +13,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "MarketAgent")
 public class MarketAgent {
     @Id
-    String marketingAgentId;
-    String marketingAgentName;
-    String marketingAgentEmail;
-    long leadsConverted;
-    long leadPending;
-    String category;
+    private String marketingAgentId;
+    private String marketingAgentName;
+    private String marketingAgentEmail;
+    private long leadsConverted;
+    private long leadPending;
+    private String category;
 }

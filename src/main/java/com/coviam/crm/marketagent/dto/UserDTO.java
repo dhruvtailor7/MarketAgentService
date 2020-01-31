@@ -8,7 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class UserDTO {
-    String userId;
-    String name;
-    String email;
+    private String userId;
+    private String name;
+    private String email;
 }

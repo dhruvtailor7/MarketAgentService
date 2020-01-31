@@ -8,10 +8,10 @@ import lombok.ToString;
 @Setter
 @ToString
 public class MarketAgentDTO {
-    String marketingAgentId;
-    String marketingAgentName;
-    String marketingAgentEmail;
-    long leadsResolved;
-    long leadPending;
-    String category;
+    private String marketingAgentId;
+    private String marketingAgentName;
+    private String marketingAgentEmail;
+    private long leadsResolved;
+    private long leadPending;
+    private String category;
 }

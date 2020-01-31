@@ -8,8 +8,8 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AdDTO {
-    String adId;
-    String leadId;
-    String category;
-    String source;
+    private String adId;
+    private String userId;
+    private String categoryId;
+    private String source;
 }

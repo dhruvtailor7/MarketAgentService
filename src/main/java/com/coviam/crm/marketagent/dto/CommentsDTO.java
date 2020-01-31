@@ -8,9 +8,9 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CommentsDTO {
-    String leadId;
-    String comment;
-    String image;
-    String video;
-    String document;
+    private String leadId;
+    private String comment;
+    private String image;
+    private String video;
+    private String document;
 }
