@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,4 +31,11 @@ public class Lead {
     private List<String> images;
     private List<String> videos;
     private List<String> documents;
+
+    public Lead() {
+        comments = new ArrayList<>();
+        images = new ArrayList<>();
+        videos = new ArrayList<>();
+        documents = new ArrayList<>();
+    }
 }

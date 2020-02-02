@@ -10,6 +10,10 @@ import lombok.ToString;
 public class AdDTO {
     private String adId;
     private String userId;
-    private String categoryId;
+    private String categoryName;
     private String source;
+    private String tag;
+    private String advertiserId;
+    private String description;
+    private String targetUrl;
 }
