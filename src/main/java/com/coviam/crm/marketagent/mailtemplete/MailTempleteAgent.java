@@ -12,24 +12,24 @@ public class MailTempleteAgent {
         switch ((int) mailNumber){
             case 0:
             case 1:
-                mailDTO.setContent("Hey "+marketAgent.getMarketingAgentName()+",<br>" +
-                        "<br>" +
-                        "The lead, "+lead.getLeadId()+", has been assigned to you since "+lead.getUpdateTime()+" minutes. Please resolve the matter.<br>" +
-                        "<br>" +
+                mailDTO.setContent("Hey "+marketAgent.getMarketingAgentName()+",\n" +
+                        "\n" +
+                        "The lead, "+lead.getLeadId()+", has been assigned to you since "+lead.getUpdateTime()+". Please resolve the matter.\n" +
+                        "\n" +
                         "Thank you.");
                 break;
             case 2:
             case 3:
-                mailDTO.setContent("Hey "+marketAgent.getMarketingAgentName()+",<br>" +
-                        "<br>" +
-                        "The lead, "+lead.getLeadId()+", has been assigned to you since "+lead.getUpdateTime()+" minutes. Please resolve the matter as soon as possible.<br>" +
-                        "<br>" +
+                mailDTO.setContent("Hey "+marketAgent.getMarketingAgentName()+",\n" +
+                        "\n" +
+                        "The lead, "+lead.getLeadId()+", has been assigned to you since "+lead.getUpdateTime()+". Please resolve the matter as soon as possible.\n" +
+                        "\n" +
                         "Thank you.");
                 break;
             case 4:
-                mailDTO.setContent(""+marketAgent.getMarketingAgentName()+"<br>" +
-                        "<br>" +
-                        "The lead, "+lead.getLeadId()+", has been assigned to you since "+lead.getUpdateTime()+" minutes. Resolve the matter immediately ");
+                mailDTO.setContent(""+marketAgent.getMarketingAgentName()+"\n" +
+                        "\n" +
+                        "The lead, "+lead.getLeadId()+", has been assigned to you since "+lead.getUpdateTime()+" . Resolve the matter immediately ");
                 break;
         }
         return mailDTO;

@@ -6,6 +6,8 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -18,5 +20,5 @@ public class MarketAgent {
     private String marketingAgentEmail;
     private long leadsConverted;
     private long leadPending;
-    private String category;
+    private List<String> category;
 }

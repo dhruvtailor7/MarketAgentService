@@ -13,7 +13,7 @@ public class MailTemplateAdmin {
             case 1:
                 mailDTO.setContent("Hey Admin,\n" +
                         "\n" +
-                        "The lead, "+lead.getLeadName()+", has been generated since "+lead.getUpdateTime()+" minutes. Please assign it to an agent.\n" +
+                        "The lead, "+lead.getLeadId()+", has been generated since "+lead.getUpdateTime()+" minutes. Please assign it to an agent.\n" +
                         "\n" +
                         "Thank you.");
                 break;
@@ -21,14 +21,14 @@ public class MailTemplateAdmin {
             case 3:
                 mailDTO.setContent("Hey Admin,\n" +
                         "\n" +
-                        "The lead, "+lead.getLeadName()+", has been generated since "+lead.getUpdateTime()+" minutes. Please assign it to an agent as soon as possible.\n" +
+                        "The lead, "+lead.getLeadId()+", has been generated since "+lead.getUpdateTime()+" minutes. Please assign it to an agent as soon as possible.\n" +
                         "\n" +
                         "Thank you.");
                 break;
             case 4:
                 mailDTO.setContent("Admin,\n" +
                         "\n" +
-                        "The lead, "+lead.getLeadName()+", has been generated since "+lead.getUpdateTime()+" minutes. Assign it to an agent now!!!");
+                        "The lead, "+lead.getLeadId()+", has been generated since "+lead.getUpdateTime()+" minutes. Assign it to an agent now!!!");
                 break;
         }
         return mailDTO;

@@ -3,6 +3,7 @@ package com.coviam.crm.marketagent.document;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @Document(collection = "MarketAgentLead")
 public class MarketAgentLead {
-    private String marketAgentId;
+    @Id
+    private String _id;
+    private String marketingAgentId;
     private String leadId;
 }
