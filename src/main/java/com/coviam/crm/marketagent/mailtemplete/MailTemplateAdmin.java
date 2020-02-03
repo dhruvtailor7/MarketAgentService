@@ -6,7 +6,6 @@ import com.coviam.crm.marketagent.dto.MailDTO;
 public class MailTemplateAdmin {
     public static MailDTO mail(Lead lead){
         MailDTO mailDTO = new MailDTO();
-
         mailDTO.setUserEmail("jainilpatel807@gmail.com");
         long mailNumber = Long.parseLong(lead.getMailCount());
         switch ((int) mailNumber){

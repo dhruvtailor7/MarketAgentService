@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "login",url = "http://172.16.20.121:8080/controller")
 public interface LoginClient {
-
     @GetMapping("/getUserDetails/{id}")
     UserDTO getUserById(@PathVariable("id") String userId);
 

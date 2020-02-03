@@ -71,21 +71,35 @@ public class MarketAgentServiceImpl implements MarketAgentService {
     }
 
 
+    @Override
+    public List<Lead> getMyLeads(String marketingAgentid) {
+        List<String> leadIds = marketAgentLeadRepository.findAll().stream().filter(marketAgentLead -> marketAgentLead.getMarketingAgentId().equals(marketingAgentid))
+                .map(marketAgentLead -> marketAgentLead.getLeadId()).collect(Collectors.toList());
 
-    @KafkaListener(topics = "clicks" , groupId = "group-id")
-    void addNewLead(String adDTO) throws JsonProcessingException {
+        List<Lead> leadList = (List<Lead>) leadRepositroy.findAllById(leadIds);
+        return (List<Lead>) leadList.stream().filter(lead -> lead.getStatus().equals("closed")).collect(Collectors.toList());
+    }
+
+    @KafkaListener(topics = "clicks" , groupId = "group-id",containerFactory = "kafkaListenerContainerFactory")
+//    @Override
+    public Lead addNewLead(String adDTO) {
         Lead newLead = new Lead();
         AdDTO adDTO1=new AdDTO();
         ObjectMapper objectMapper=new ObjectMapper();
-        adDTO1 = objectMapper.readValue(adDTO,AdDTO.class);
+        try {
+            adDTO1 = objectMapper.readValue(adDTO,AdDTO.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         //newLead.setLeadId(adDTO1.getAccessToken());
 
        // String token=adDTO1.getUserId().substring(7);
         //Claims claims=this.parseToken(token);
+        System.out.println(adDTO1);
         String userId = adDTO1.getUserId();
-        BeanUtils.copyProperties(adDTO,newLead);
-        UserDTO userDTO = loginClient.getUserById(userId);
+        BeanUtils.copyProperties(adDTO1,newLead);
+        UserDTO userDTO = loginClient.getUserById(userId.trim());
         newLead.setStatus("open");
         newLead.setLeadId(userId);
         newLead.setLeadName(userDTO.getName());
@@ -98,9 +112,8 @@ public class MarketAgentServiceImpl implements MarketAgentService {
         System.out.println(df.format(date));
         newLead.setCreatedTime(df.format(date));
         newLead.setUpdateTime(df.format(date));
-        leadRepositroy.save(newLead);
-
-    }
+        return leadRepositroy.save(newLead);
+        }
 
     @Override
     public Lead upload(CommentsDTO commentsDTO) {
@@ -118,7 +131,9 @@ public class MarketAgentServiceImpl implements MarketAgentService {
         List<String> leadIds = marketAgentLeadRepository.findAll().stream().filter(marketAgentLead -> marketAgentLead.getMarketingAgentId().equals(marketingAgentid))
                 .map(marketAgentLead -> marketAgentLead.getLeadId()).collect(Collectors.toList());
 
-        return (List<Lead>) leadRepositroy.findAllById(leadIds);
+        List<Lead> leadList = (List<Lead>) leadRepositroy.findAllById(leadIds);
+        System.out.println(leadList);
+        return (List<Lead>) leadList.stream().filter(lead -> lead.getStatus().equals("open")).collect(Collectors.toList());
     }
 
     @Override
@@ -158,6 +173,16 @@ public class MarketAgentServiceImpl implements MarketAgentService {
     }
 
     @Override
+    public List<Lead> getMyListByMarketAgentId(String marketingAgentid) {
+        List<String> leadIds = marketAgentLeadRepository.findAll().stream().filter(marketAgentLead -> marketAgentLead.getMarketingAgentId().equals(marketingAgentid))
+                .map(marketAgentLead -> marketAgentLead.getLeadId()).collect(Collectors.toList());
+
+        List<Lead> leadList = (List<Lead>) leadRepositroy.findAllById(leadIds);
+        System.out.println(leadList);
+        return (List<Lead>) leadList.stream().filter(lead -> lead.getStatus().equals("in progress")).collect(Collectors.toList());
+    }
+
+    @Override
     public List<MarketAgent> getMarketAgentByCategory(String category) {
         ArrayList<MarketAgent> marketAgentArrayList=(ArrayList<MarketAgent>) marketAgentRepository.findAll();
         return marketAgentArrayList.stream().filter(marketAgent -> marketAgent.getCategory().contains(category)).collect(Collectors.toList());
@@ -185,6 +210,11 @@ public class MarketAgentServiceImpl implements MarketAgentService {
             list.add(category[i]);
         }
         return list;
+    }
+
+    @Override
+    public Lead getLeadByLeadId(String leadId) {
+        return leadRepositroy.findById(leadId).get();
     }
 
     @Override
@@ -233,6 +263,7 @@ public class MarketAgentServiceImpl implements MarketAgentService {
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {
+                        if(mailDTO.getUserEmail()!=null)
                         kafkaTemplate.send("mail", objectMapper.writeValueAsString(mailDTO));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
@@ -273,6 +304,7 @@ public class MarketAgentServiceImpl implements MarketAgentService {
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {
+                        if(mailDTO.getUserEmail()!=null)
                         kafkaTemplate.send("mail", objectMapper.writeValueAsString(mailDTO));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
@@ -284,6 +316,14 @@ public class MarketAgentServiceImpl implements MarketAgentService {
                         lead.setMailCount(String.valueOf(Integer.parseInt(lead.getMailCount()) + 1));
                     }
                     else {
+                        MarketAgent marketAgent=marketAgentRepository.findById(marketAgentid.get()).get();
+                        marketAgent.setLeadPending(marketAgent.getLeadPending()-1);
+
+                        MarketAgentLead marketAgentLead = marketAgentLeadRepository.findAll().stream().filter(
+                             marketAgentLead1 -> marketAgentLead1.getMarketingAgentId().equals(marketAgentid.get()) && marketAgentLead1.getLeadId().equals(lead.getLeadId())
+                        ).collect(Collectors.toList()).get(0);
+                        marketAgentLeadRepository.delete(marketAgentLead);
+
                         LocalDateTime now1 = LocalDateTime.now();
                         lead.setUpdateTime(dtf.format(now1));
                         lead.setMailCount("0");

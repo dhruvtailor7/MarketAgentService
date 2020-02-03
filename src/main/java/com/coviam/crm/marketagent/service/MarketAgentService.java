@@ -39,4 +39,12 @@ public interface MarketAgentService {
     void mail() throws JsonProcessingException;
 
     List<MarketAgent> getMAList();
+
+    Lead getLeadByLeadId(String leadId);
+
+    List<Lead> getMyLeads(String marketingAgentId);
+
+    List<Lead> getMyListByMarketAgentId(String userId);
+
+//    Lead addNewLead(String adDTO);
 }
